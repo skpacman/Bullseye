@@ -35,7 +35,7 @@ Hit the target, Win a Prize!
 - [Steamodded >= 1.0.0~ALPHA-1409a "smods-main"](https://github.com/Steamodded/smods/wiki) 
 
 ## Installation
-1. [Download the .zip]() --COMING SOON--
+1. [Download the .zip](https://github.com/skpacman/Bullseye/archive/refs/tags/v0.7.0.zip)
 2. Unzip it somewhere
 3. Move the `Bullseye` folder into your `%AppData%/Balatro/Mods` folder
 4. Done!
