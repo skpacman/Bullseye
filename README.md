@@ -47,5 +47,5 @@ Join the Balatro Official Discord!
 Please follow the Balatro Discord's official rules for modding and join the fun
 [[ Official Balatro Discord ]](https://discord.gg/2kVpxkd2 "[ Official Balatro Discord ]")
 
-##TO DO
+## TO DO
 - More Prize Types
