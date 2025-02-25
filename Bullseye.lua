@@ -6,7 +6,7 @@
 --- BADGE_COLOUR: c20000
 --- DISPLAY_NAME: Bullseye Jokers
 --- PREFIX: bullseye
---- VERSION: 0.6.1
+--- VERSION: 0.7.0
 --- DEPENDENCIES: [Steamodded>=1.0.0~ALPHA-0812d]
 
 ----------------------------------------------
@@ -27,15 +27,13 @@ SMODS.Joker({
 		name = 'Bullseye',
 		text = {
 			"Hit the target, Win a Prize!",
-			"{s:0.6,c:gray}(Round Score & Blind Score Requirement MUST MATCH EXACTLY){}",
-			"{s:0.6,c:gray}Single Bullseye gives $50, a random tag, a random voucher, a random negative joker, or a random negative planet.{}",
-			"{s:0.6,c:gray}Double Bullseye gives $100 AND a random tag, a random voucher, a random negative joker, or a random negative planet.{}",
+			"{s:0.6,c:gray}(Round Score MUST MATCH Blind Score Requirement EXACTLY){}",
 		}
 	},
 	config = {
 		d_size = 0,
 		extra = {
-			hcount = 0,
+			hcount = 0,  -- This tracks the hand count
 			loc_texts = {"", "", nil},
 		},
 	},
@@ -58,263 +56,77 @@ SMODS.Joker({
 	perishable_compat = true,
 	blueprint_compat = false,
 	calculate = function(self, card, context)
-		local singlePrizes = {"dollars","voucher","tag","planet","joker","tarot","spectral"}
-		local doublePrizes = {"voucher","tag","planet","joker","tarot","spectral"}
-		if context.joker_main and not context.end_of_round and context.cardarea == G.jokers then card.ability.extra.hcount = card.ability.extra.hcount + 1 end
+		-- Increase hand count during the round if conditions are met
+		if context.joker_main and not context.end_of_round and context.cardarea == G.jokers then
+			card.ability.extra.hcount = card.ability.extra.hcount + 1 
+		end
+
+		-- Process end-of-round prize if in the jokers area and blind chips match chips
 		if context.end_of_round and context.cardarea == G.jokers then
 			if G.GAME.blind.chips == G.GAME.chips then
-				if card.ability.extra.hcount >= 2 then
-					local randomSingle = singlePrizes[math.random(#singlePrizes)]
-					card.ability.extra.hcount = 0
-					if randomSingle == "voucher" then
-						local spawned_tag = spawn_tag(self, card, context, "tag_voucher")
-						if spawned_tag == true then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Voucher!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Voucher but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Voucher but something went wrong..." }
-							}
-						end
-					elseif randomSingle == "dollars" then
-						return {
-							message = "Bullseye!",
-							extra = { message = "You Won $50!" },
-							dollars = 50;
-						}
-					elseif randomSingle == "tag" then
-						local spawned_tag = spawn_tag(self, card, context, nil)
-						if spawned_tag == true then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Tag!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Tag but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Tag but something went wrong..." }
-							}
-						end
-					elseif randomSingle == "planet" then
-						local spawned_planet = spawn_planet(self, card, context, nil)
-						if spawned_planet == true then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Planet Card!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Planet Card but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Planet Card but something went wrong..." }
-							}
-						end
-					elseif randomSingle == "joker" then
-						local spawned_joker = spawn_joker(self, card, context, nil)
-						if spawned_joker == true then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Joker Card!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Joker Card but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Joker Card but something went wrong..." }
-							}
-						end
-					elseif randomSingle == "tarot" then
-						local spawned_tarot = spawn_tarot(self, card, context, nil)
-						if spawned_tarot == true then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Tarot Card!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Tarot Card but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Tarot Card but something went wrong..." }
-							}
-						end
-					elseif randomSingle == "spectral" then
-						local spawned_spectral = spawn_spectral(self, card, context, nil)
-						if spawned_spectral == true then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Spectral Card!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Spectral Card but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								message = "Bullseye!",
-								extra = { message = "You Won a Random Spectral Card but something went wrong..." }
-							}
-						end
+				-- Helper to handle prize spawning, logging, and message formatting
+				local function processPrize(prize, isSingle)
+					local spawnFn, param, baseMsg
+					if prize == "voucher" then
+						spawnFn = spawn_tag; param = "tag_voucher"
+						baseMsg = isSingle and "You Won a Random Voucher!" or "You Won $100 AND a Random Voucher!"
+					elseif prize == "tag" then
+						spawnFn = spawn_tag; param = nil
+						baseMsg = isSingle and "You Won a Random Tag!" or "You Won $100 AND a Random Tag!"
+					elseif prize == "planet" then
+						spawnFn = spawn_planet; param = nil
+						baseMsg = isSingle and "You Won a Random Planet Card!" or "You Won $100 AND a Random Planet Card!"
+					elseif prize == "joker" then
+						spawnFn = spawn_joker; param = nil
+						baseMsg = isSingle and "You Won a Random Joker Card!" or "You Won $100 AND a Random Joker Card!"
+					elseif prize == "tarot" then
+						spawnFn = spawn_tarot; param = nil
+						baseMsg = isSingle and "You Won a Random Tarot Card!" or "You Won $100 AND a Random Tarot Card!"
+					elseif prize == "spectral" then
+						spawnFn = spawn_spectral; param = nil
+						baseMsg = isSingle and "You Won a Random Spectral Card!" or "You Won $100 AND a Random Spectral Card!"
 					end
-				elseif card.ability.extra.hcount == 1 then
-					local randomDouble = doublePrizes[math.random(#doublePrizes)]
-					card.ability.extra.hcount = 0
-					if randomDouble == "voucher" then
-						local spawned_tag = spawn_tag(self, card, context, "tag_voucher")
-						if spawned_tag == true then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Voucher!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Voucher but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Voucher but something went wrong..." }
-							}
-						end
-					elseif randomDouble == "tag" then
-						local spawned_tag = spawn_tag(self, card, context, nil)
-						if spawned_tag == true then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Tag!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Tag but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Tag but something went wrong..." }
-							}
-						end
-					elseif randomDouble == "planet" then
-						local spawned_planet = spawn_planet(self, card, context, nil)
-						if spawned_planet == true then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Planet Card!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Planet Card but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Planet Card but something went wrong..." }
-							}
-						end
-					elseif randomDouble == "joker" then
-						local spawned_joker = spawn_joker(self, card, context, nil)
-						if spawned_joker == true then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Joker Card!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Joker Card but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Joker Card but something went wrong..." }
-							}
-						end
-					elseif randomDouble == "tarot" then
-						local spawned_tarot = spawn_tarot(self, card, context, nil)
-						if spawned_tarot == true then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Tarot Card!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Tarot Card but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Tarot Card but something went wrong..." }
-							}
-						end
-					elseif randomDouble == "spectral" then
-						local spawned_spectral = spawn_spectral(self, card, context, nil)
-						if spawned_spectral == true then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Spectral Card!" }
-							}
-						elseif spawned_tag == "noRoom" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Spectral Card but there was no room!" }
-							}
-						elseif spawned_tag == "badKey" then
-							return {
-								dollars = 100,
-								message = "Bullseye!",
-								extra = { message = "You Won $100 AND a Random Spectral Card but something went wrong..." }
-							}
-						end
+
+					-- Log the prize award attempt
+					print(string.format("[Bullseye] Prize: %s %s", (isSingle and "Single" or "Double"), prize))
+					
+					local result = spawnFn(self, card, context, param)
+					if result == true then
+						local res = { message = "Bullseye!", extra = { message = baseMsg } }
+						if not isSingle then res.dollars = 100 end
+						return res
+					elseif result == "noRoom" then
+						-- Log noRoom detection
+						print(string.format("[Bullseye] Prize: %s %s - no room", (isSingle and "Single" or "Double"), prize))
+						local noRoomMsg = baseMsg:gsub("!", " but there was no room!")
+						local res = { message = "Bullseye!", extra = { message = noRoomMsg } }
+						if not isSingle then res.dollars = 100 end
+						return res
 					end
 				end
+
+				-- Process based on hand count
+				if card.ability.extra.hcount >= 2 then
+					local singlePrizes = {"dollars", "voucher", "tag", "planet", "joker", "tarot", "spectral"}
+					local prize = singlePrizes[math.random(#singlePrizes)]
+					card.ability.extra.hcount = 0
+					if prize == "dollars" then
+						-- Log dollars prize
+						print("[Bullseye] Prize: Single dollars")
+						return { dollars = 50, message = "Bullseye!", extra = { message = "You Won $50!" } }
+					else
+						return processPrize(prize, true)
+					end
+				elseif card.ability.extra.hcount == 1 then
+					local doublePrizes = {"voucher", "tag", "planet", "joker", "tarot", "spectral"}
+					local prize = doublePrizes[math.random(#doublePrizes)]
+					card.ability.extra.hcount = 0
+					return processPrize(prize, false)
+				end
 			end 
+			-- Reset hand count at end-of-round
+			card.ability.extra.hcount = 0
 		end
-		if context.end_of_round and context.cardarea == G.jokers then card.ability.extra.hcount = 0 end
 	end
 })
 
